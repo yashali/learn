@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import {
   Box,
@@ -11,6 +10,8 @@ import {
   Button,
   Image,
   Link,
+  Spinner,
+  Center,
 } from '@chakra-ui/react'
 import { ArrowBackIcon } from '@chakra-ui/icons'
 import ReactMarkdown from 'react-markdown'
@@ -20,8 +21,8 @@ import rehypeSlug from 'rehype-slug'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { tomorrow } from 'react-syntax-highlighter/dist/esm/styles/prism'
-import type { BlogPost as BlogPostType } from '../types'
 import type { Components } from 'react-markdown'
+import { useBlogs } from './BlogProvider'
 
 interface CodeProps {
   node?: any;
@@ -30,49 +31,19 @@ interface CodeProps {
   children?: React.ReactNode;
 }
 
-// Import your blog posts
-import gettingStartedWithReact from '../../content/posts/getting-started-with-react.md?raw'
-
-const posts: Record<string, BlogPostType> = {
-  'getting-started-with-react': {
-    id: '1',
-    slug: 'getting-started-with-react',
-    title: 'Getting Started with React',
-    excerpt: 'Learn the basics of React and how to create your first application...',
-    date: '2024-03-20',
-    tags: ['react', 'javascript', 'web-development'],
-    content: gettingStartedWithReact,
-    author: 'Your Name',
-    readingTime: '5 min read',
-  },
-}
-
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>()
   const navigate = useNavigate()
-  const [post, setPost] = useState<BlogPostType | null>(null)
-  const [content, setContent] = useState<string>('')
+  const { blogs, loading } = useBlogs()
+  const post = blogs.find((p) => p.slug === slug)
 
-  useEffect(() => {
-    const fetchPost = async () => {
-      try {
-        const response = await fetch(`/api/posts/${slug}`)
-        const data = await response.json()
-        setPost(data)
-
-        // Fetch markdown content
-        const contentResponse = await fetch(`/posts/${slug}.md`)
-        const markdownContent = await contentResponse.text()
-        setContent(markdownContent)
-      } catch (error) {
-        console.error('Error fetching post:', error)
-      }
-    }
-
-    if (slug) {
-      fetchPost()
-    }
-  }, [slug])
+  if (loading) {
+    return (
+      <Center minH="80vh">
+        <Spinner size="xl" />
+      </Center>
+    )
+  }
 
   if (!post) {
     return (
@@ -134,11 +105,11 @@ const BlogPost = () => {
             <Text>{post.author}</Text>
             <Text>•</Text>
             <Text>{new Date(post.date).toLocaleDateString()}</Text>
-            <Text>•</Text>
-            <Text>{post.readingTime}</Text>
+            {/* <Text>•</Text>
+            <Text>{post.readingTime}</Text> */}
           </HStack>
 
-          {post.coverImage && (
+          {/* {post.coverImage && (
             <Image
               src={post.coverImage}
               alt={post.title}
@@ -147,11 +118,11 @@ const BlogPost = () => {
               maxH="400px"
               objectFit="cover"
             />
-          )}
+          )} */}
 
           <Box className="markdown-content">
-            <ReactMarkdown components={components}>
-              {content}
+            <ReactMarkdown components={components} remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw, rehypeSlug, rehypeAutolinkHeadings]}>
+              {post.content}
             </ReactMarkdown>
           </Box>
         </VStack>

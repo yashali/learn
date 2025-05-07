@@ -1,42 +1,31 @@
-import { Box, VStack, Heading, Button, Text } from '@chakra-ui/react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useState, useEffect } from 'react';
-import type { BlogPost } from '../types';
+import { Box, VStack, Heading, Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon, Button, Text, Spinner, Center } from '@chakra-ui/react';
+import { useNavigate } from 'react-router-dom';
+import { useMemo } from 'react';
+import { useBlogs } from './BlogProvider';
 
 const Sidebar = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const [years, setYears] = useState<number[]>([]);
-  const [selectedYear, setSelectedYear] = useState<number | null>(null);
+  const { blogs, loading } = useBlogs();
 
-  useEffect(() => {
-    // Fetch posts and extract unique years
-    const fetchYears = async () => {
-      try {
-        const response = await fetch('/api/posts');
-        const posts: BlogPost[] = await response.json();
-        const uniqueYears = Array.from(
-          new Set(posts.map(post => new Date(post.date).getFullYear()))
-        ).sort((a, b) => b - a); // Sort in descending order
-        setYears(uniqueYears);
-      } catch (error) {
-        console.error('Error fetching years:', error);
-      }
-    };
+  // Group posts by year
+  const postsByYear = useMemo(() => {
+    const groups: { [year: string]: typeof blogs } = {};
+    blogs.forEach(post => {
+      const year = new Date(post.date).getFullYear().toString();
+      if (!groups[year]) groups[year] = [];
+      groups[year].push(post);
+    });
+    // Sort years descending
+    return Object.entries(groups).sort((a, b) => Number(b[0]) - Number(a[0]));
+  }, [blogs]);
 
-    fetchYears();
-  }, []);
-
-  const handleYearClick = (year: number) => {
-    setSelectedYear(year === selectedYear ? null : year);
-    const searchParams = new URLSearchParams(location.search);
-    if (year === selectedYear) {
-      searchParams.delete('year');
-    } else {
-      searchParams.set('year', year.toString());
-    }
-    navigate({ search: searchParams.toString() });
-  };
+  if (loading) {
+    return (
+      <Center minH="40vh">
+        <Spinner size="lg" />
+      </Center>
+    );
+  }
 
   return (
     <Box
@@ -46,22 +35,41 @@ const Sidebar = () => {
       p={6}
       borderRadius="lg"
       boxShadow="sm"
+      minW="250px"
+      maxW="300px"
     >
       <VStack spacing={4} align="stretch">
         <Heading size="md">Timeline</Heading>
-        <VStack spacing={2} align="stretch">
-          {years.map(year => (
-            <Button
-              key={year}
-              variant={selectedYear === year ? 'solid' : 'ghost'}
-              colorScheme={selectedYear === year ? 'blue' : 'gray'}
-              justifyContent="flex-start"
-              onClick={() => handleYearClick(year)}
-            >
-              {year}
-            </Button>
+        <Accordion allowMultiple={false} defaultIndex={[]}>
+          {postsByYear.map(([year, posts]) => (
+            <AccordionItem key={year} border="none">
+              <AccordionButton _expanded={{ bg: 'blue.50' }}>
+                <Box flex="1" textAlign="left" fontWeight="bold">
+                  {year}
+                </Box>
+                <AccordionIcon />
+              </AccordionButton>
+              <AccordionPanel pb={2}>
+                <VStack align="stretch" spacing={1}>
+                  {posts.map(post => (
+                    <Button
+                      key={post.id}
+                      variant="ghost"
+                      justifyContent="flex-start"
+                      onClick={() => navigate(`/post/${post.slug}`)}
+                      size="sm"
+                      fontWeight="normal"
+                      textAlign="left"
+                      whiteSpace="normal"
+                    >
+                      {post.title}
+                    </Button>
+                  ))}
+                </VStack>
+              </AccordionPanel>
+            </AccordionItem>
           ))}
-        </VStack>
+        </Accordion>
       </VStack>
     </Box>
   );

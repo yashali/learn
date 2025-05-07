@@ -11,48 +11,27 @@ import {
   Select,
   Button,
   Flex,
+  Spinner,
+  Center,
 } from '@chakra-ui/react'
 import { useNavigate } from 'react-router-dom'
-
-interface BlogPost {
-  id: string
-  title: string
-  excerpt: string
-  date: string
-  tags: string[]
-}
-
-// Temporary mock data - replace with your actual blog posts
-const mockPosts: BlogPost[] = [
-  {
-    id: '1',
-    title: 'Getting Started with React',
-    excerpt: 'Learn the basics of React and how to create your first application...',
-    date: '2024-03-20',
-    tags: ['react', 'javascript', 'web-development'],
-  },
-  {
-    id: '2',
-    title: 'Understanding TypeScript',
-    excerpt: 'A comprehensive guide to TypeScript and its features...',
-    date: '2024-03-19',
-    tags: ['typescript', 'javascript'],
-  },
-]
+import { useBlogs } from './BlogProvider'
 
 const POSTS_PER_PAGE = 10
 
 const BlogList = () => {
-  const [posts, setPosts] = useState<BlogPost[]>(mockPosts)
+  const { blogs, loading } = useBlogs()
+  const [posts, setPosts] = useState(blogs)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedTag, setSelectedTag] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const navigate = useNavigate()
 
-  const allTags = Array.from(new Set(mockPosts.flatMap(post => post.tags)))
+  // All tags from all blogs
+  const allTags = Array.from(new Set(blogs.flatMap(post => post.tags)))
 
   useEffect(() => {
-    let filteredPosts = mockPosts
+    let filteredPosts = blogs
 
     if (searchQuery) {
       filteredPosts = filteredPosts.filter(
@@ -70,7 +49,7 @@ const BlogList = () => {
 
     setPosts(filteredPosts)
     setCurrentPage(1) // Reset to first page when filters change
-  }, [searchQuery, selectedTag])
+  }, [searchQuery, selectedTag, blogs])
 
   // Calculate pagination
   const totalPages = Math.ceil(posts.length / POSTS_PER_PAGE)
@@ -81,6 +60,14 @@ const BlogList = () => {
   const handlePageChange = (page: number) => {
     setCurrentPage(page)
     window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  if (loading) {
+    return (
+      <Center minH="80vh">
+        <Spinner size="xl" />
+      </Center>
+    )
   }
 
   return (
@@ -113,7 +100,7 @@ const BlogList = () => {
             borderWidth="1px"
             borderRadius="md"
             cursor="pointer"
-            onClick={() => navigate(`/post/${post.id}`)}
+            onClick={() => navigate(`/post/${post.slug}`)}
             _hover={{ shadow: 'lg' }}
           >
             <VStack align="start" spacing={3}>
