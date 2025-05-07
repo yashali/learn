@@ -1,6 +1,7 @@
 {
   "name": "blog",
   "private": true,
+  "homepage": "https://yashali.github.io/learn/",
   "version": "0.0.0",
   "type": "module",
   "scripts": {
