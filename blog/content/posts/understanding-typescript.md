@@ -1,6 +1,6 @@
 ---
 title: Understanding TypeScript
-date: 2024-03-19
+date: 2025-03-19
 excerpt: A comprehensive guide to TypeScript and its features. Learn how to use static typing, interfaces, and advanced TypeScript features to write more robust code.
 tags: [typescript, javascript, programming]
 author: Jane Smith
