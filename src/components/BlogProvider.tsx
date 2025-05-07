@@ -26,7 +26,7 @@ export const BlogProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const importBlogs = async () => {
       // Import all markdown files in content/posts
-      const modules = import.meta.glob('../../content/posts/*.md', { as: 'raw' });
+      const modules = import.meta.glob('/content/posts/*.md', { as: 'raw' });
       const blogEntries: BlogPostMeta[] = [];
       for (const path in modules) {
         const raw = await modules[path]();
