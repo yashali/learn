@@ -4,12 +4,12 @@ excerpt: "Learn the basics of React and how to create your first application"
 date: "2024-03-20"
 tags: ["react", "javascript", "web-development"]
 author: "Your Name"
-coverImage: "images/react-cover.jpg"
+coverImage: "/learn/images/react-cover.jpg"
 ---
 
 # Getting Started with React
 
-![React Logo](images/react-logo.png)
+![React Logo](/learn/images/react-logo.png)
 
 React is a powerful JavaScript library for building user interfaces. In this post, we'll explore the basics of React and how to get started with your first application.
 
@@ -17,7 +17,7 @@ React is a powerful JavaScript library for building user interfaces. In this pos
 
 React is a declarative, efficient, and flexible JavaScript library for building user interfaces. It lets you create reusable UI components.
 
-![React Components](images/react-components.gif)
+![React Components](/learn/images/react-components.gif)
 
 ## Why React?
 
@@ -63,4 +63,4 @@ function Welcome() {
 
 React is an excellent choice for building modern web applications. Its component-based architecture and virtual DOM make it efficient and maintainable.
 
-![React Success](images/react-success.gif) 
+![React Success](/learn/images/react-success.gif) 
