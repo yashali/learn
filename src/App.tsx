@@ -10,7 +10,7 @@ function App() {
   return (
     <ChakraProvider theme={theme}>
       <BlogProvider>
-        <Router>
+        <Router basename="/learn">
           <Flex minH="100vh" direction={{ base: 'column', lg: 'row' }}>
             <Box flexShrink={0}>
               <Sidebar />
